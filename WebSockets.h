@@ -27,7 +27,6 @@
 #include <time.h>
 #include <vector>
 #include <map>
-#include <uuid/uuid.h>
 
 #include <iostream>
 typedef int  (*callback)(struct lws *wsi, enum lws_callback_reasons reason, void *user, void *in, size_t len);
@@ -183,21 +182,6 @@ class WebSockets {
 		}
 		Protocol &operator [] (std::string name) {
 			return Protocols[name];
-		}
-		/**
-		 * Created  03/12/2022
-		 * @brief   generate unique id
-		 * @param   
-		 * @return  
-		 */
-		std::string GetId() {
-			uuid_t uuid;
-			char id[64];
-			memset (id,64,0);
-			uuid_generate(uuid);
-			uuid_unparse_lower(uuid, id);
-			std::string s(id);
-			return s;
 		}
 
 		void RunStep() {
