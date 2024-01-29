@@ -54,8 +54,8 @@ target_link_libraries(fxopen PRIVATE
 
 
 add_library(WebSockets WebSockets.cpp WebSockets.h)
-target_link_libraries(WebSockets PRIVATE websockets)
-target_link_libraries(WebSockets PRIVATE
+target_link_libraries(WebSockets PUBLIC websockets)
+target_link_libraries(WebSockets PUBLIC
 	-Wl,--start-group  	
 	websockets
 	-Wl,--end-group
