@@ -81,8 +81,7 @@ int callback_dumb_increment(struct lws *wsi, enum lws_callback_reasons reason,
 			break;
 
 		case LWS_CALLBACK_CLIENT_CLOSED:
-			//p->ClearWsi();
-
+			p->OnDisconnectCallBack();
 			break;
 
 		default:

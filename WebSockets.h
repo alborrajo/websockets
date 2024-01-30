@@ -56,13 +56,15 @@ class WebSockets {
 
 				}
 				void SetAddress(std::string address,std::string path, int port,
-						std::function<bool (std::string json, std::string name)>   callback
-					       ) {
-					SetAddress(address, path, port, true, callback);
+						std::function<bool (std::string json, std::string name)>   callback,
+						std::function<void (std::string name)>   on_disconnect_callback
+				) {
+					SetAddress(address, path, port, true, callback, on_disconnect_callback);
 				}
 				void SetAddress(std::string address,std::string path, int port, int ssl_connection,
-						std::function<bool (std::string json, std::string name)>   callback
-					       ) {
+						std::function<bool (std::string json, std::string name)>   callback,
+						std::function<void (std::string name)>   on_disconnect_callback
+				) {
 					m_address = address;
 					m_path =path;
 					memset(&i, 0, sizeof i); /* otherwise uninitialized garbage */
@@ -75,6 +77,7 @@ class WebSockets {
 					i.protocol = p_name; 
 					i.pwsi = &client_wsi;
 					m_callback = callback;
+					m_on_disconnect_callback = on_disconnect_callback;
 				}
 				void Connect(struct lws_context *context) {
 					i.context = context;					
@@ -108,6 +111,11 @@ class WebSockets {
 					return true;
 				}
 
+				void OnDisconnectCallBack() {
+					if (m_on_disconnect_callback)
+						m_on_disconnect_callback(m_name);
+				}
+
 				void ClearMsg() {
 					m_msg.clear();
 				}
@@ -129,6 +137,7 @@ class WebSockets {
 				bool m_connected = false;
 				char p_name[16];
 				std::function<bool (std::string json, std::string name)>   m_callback;
+				std::function<void (std::string name)>   m_on_disconnect_callback;
 				std::string m_msg;
 				std::string m_out_msg;
 
@@ -167,18 +176,20 @@ class WebSockets {
 			callback();
 		}
 		void AddProtocol(std::string name, std::string address,std::string path, int port,
-				 const std::function<bool (std::string json, std::string name)>  & callback = {}) {
+				const std::function<bool (std::string json, std::string name)>  & callback = {},
+				const std::function<void (std::string name)>  & on_disconnect_callback = {}) {
 			lws_protocols protocol;
 			Protocol * p = &Protocols[name];
 			*p =  Protocol(name, &protocols[idx++], p);
-			p->SetAddress(address,path,port,callback);
+			p->SetAddress(address,path,port,callback,on_disconnect_callback);
 		}
 		void AddProtocol(std::string name, std::string address,std::string path, int port, int ssl_connection,
-				 const std::function<bool (std::string json, std::string name)>  & callback = {}) {
+				const std::function<bool (std::string json, std::string name)>  & callback = {},
+				const std::function<void (std::string name)>  & on_disconnect_callback = {}) {
 			lws_protocols protocol;
 			Protocol * p = &Protocols[name];
 			*p =  Protocol(name, &protocols[idx++], p);
-			p->SetAddress(address,path,port,ssl_connection,callback);
+			p->SetAddress(address,path,port,ssl_connection,callback,on_disconnect_callback);
 		}
 		Protocol &operator [] (std::string name) {
 			return Protocols[name];
