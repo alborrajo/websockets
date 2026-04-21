@@ -83,19 +83,14 @@ class WebSockets {
 					i.context = context;					
 					client_wsi = lws_client_connect_via_info(&i);
 				}	
-				int Write(const std::string & msg) {
+				int Write(const char* msg, size_t msg_length) {
 					char c[8092];
-					strncpy (c, msg.c_str(),msg.size());
-					c[msg.size()] =0;
-					return lws_write(client_wsi, (unsigned char*) c, strlen(c), LWS_WRITE_TEXT);
+					strncpy(c+LWS_PRE, msg, msg_length);
+					c[LWS_PRE+msg_length] = 0;
+					return lws_write(client_wsi, (unsigned char*) c+LWS_PRE, msg_length, LWS_WRITE_BINARY);
 				}
-				int Write(unsigned char* msg, size_t msg_length) {
-					// why lws why
-					size_t buf_length = LWS_PRE + msg_length;
-					unsigned char buf[buf_length];
-					unsigned char* buf_msg_ptr = buf+LWS_PRE;
-					memcpy(buf_msg_ptr, msg, msg_length);
-					return lws_write(client_wsi, buf_msg_ptr, msg_length, LWS_WRITE_BINARY);
+				int Write(const std::string & msg) {
+					return this->Write(msg.c_str(), msg.size());
 				}
 				void setConnected(bool c) {
 					m_connected = c;
