@@ -12,6 +12,14 @@ if(USE_BUNDLED_LWS)
 add_subdirectory(libwebsockets)
 endif()
 
+# Use the shared target if available. This is done in case we're not using the bundled LWS.
+# For example, when using vcpkg, depending on the triplet, lws can be available as static or shared.
+if(TARGET websockets_shared)
+set(LIBWEBSOCKETS websockets_shared)
+else()
+set(LIBWEBSOCKETS websockets)
+endif()
+
 project(WebSockets)
 SET(CMAKE_CONFIGURATION_TYPES "Debug;Release;MinSizeRel;RelWithDebInfo" CACHE STRING "" FORCE)
 
@@ -27,10 +35,10 @@ add_executable(demo
 	${demo_SRC}
 	${demo_H}
 	)
-target_link_libraries(demo PRIVATE websockets_shared)
+target_link_libraries(demo PRIVATE ${LIBWEBSOCKETS})
 target_link_libraries(demo PRIVATE
-	-Wl,--start-group  	
-	websockets_shared
+	-Wl,--start-group
+	${LIBWEBSOCKETS}
 	pthread
 	-Wl,--end-group
 	)
@@ -44,10 +52,10 @@ add_executable(fxopen
 	${fxopen_SRC}
 	${fxopen_H}
 	)
-target_link_libraries(fxopen PRIVATE websockets_shared)
+target_link_libraries(fxopen PRIVATE ${LIBWEBSOCKETS})
 target_link_libraries(fxopen PRIVATE
-	-Wl,--start-group  	
-	websockets_shared
+	-Wl,--start-group
+	${LIBWEBSOCKETS}
 	pthread
 	ssl 
 	crypto 
@@ -58,9 +66,9 @@ target_link_libraries(fxopen PRIVATE
 
 
 add_library(WebSockets WebSockets.cpp WebSockets.h)
-target_link_libraries(WebSockets PUBLIC websockets_shared)
+target_link_libraries(WebSockets PUBLIC ${LIBWEBSOCKETS})
 target_link_libraries(WebSockets PUBLIC
-	-Wl,--start-group  	
-	websockets_shared
+	-Wl,--start-group
+	${LIBWEBSOCKETS}
 	-Wl,--end-group
 	)
