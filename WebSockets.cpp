@@ -24,7 +24,6 @@
 int callback_dumb_increment(struct lws *wsi, enum lws_callback_reasons reason,
 			void *user, void *in, size_t len)
 {
-	int n;
 	WebSockets::Protocol * p  = 0;
 	if ((WebSockets::Protocol*)lws_get_protocol(wsi))
 		p  =  (WebSockets::Protocol*)lws_get_protocol(wsi)->user;

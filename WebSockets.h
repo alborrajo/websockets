@@ -149,7 +149,7 @@ class WebSockets {
 			}
 		};
 
-		WebSockets(const WebSockets & ws) {};
+		WebSockets(const WebSockets &) {};
 
 		~WebSockets() {
 			if (context)
@@ -173,7 +173,6 @@ class WebSockets {
 		void AddProtocol(std::string name, std::string address,std::string path, int port,
 				const std::function<bool (std::string json, std::string name)>  & callback = {},
 				const std::function<void (std::string name)>  & on_disconnect_callback = {}) {
-			lws_protocols protocol;
 			Protocol * p = &Protocols[name];
 			*p =  Protocol(name, &protocols[idx++], p);
 			p->SetAddress(address,path,port,callback,on_disconnect_callback);
@@ -181,7 +180,6 @@ class WebSockets {
 		void AddProtocol(std::string name, std::string address,std::string path, int port, int ssl_connection,
 				const std::function<bool (std::string json, std::string name)>  & callback = {},
 				const std::function<void (std::string name)>  & on_disconnect_callback = {}) {
-			lws_protocols protocol;
 			Protocol * p = &Protocols[name];
 			*p =  Protocol(name, &protocols[idx++], p);
 			p->SetAddress(address,path,port,ssl_connection,callback,on_disconnect_callback);
@@ -196,20 +194,19 @@ class WebSockets {
 			std::this_thread::yield();
 			lws_service(context, 0);
 			time(&rx_time);				
-			for ( auto& [key, p] : Protocols ) {
+			//	for ( auto& [key, p] : Protocols ) {
 				//	if  ( (p.Connected() && p.getWsi()) /*  || (p.last_update_time && rx_time-p.last_update_time>300)*/) {
 				//		lws_close_reason(p.getWsi(), LWS_CLOSE_STATUS_NOSTATUS, NULL, 0);
 				//		p.ClearWsi();
 				//		p.Connect(context);
 				//	}
-			}
+			//	}
 
 
 
 		}
 
 		void Run() {
-			time_t rx_time;
 			isRunning = true;
 			while (isRunning) {
 				RunStep();
